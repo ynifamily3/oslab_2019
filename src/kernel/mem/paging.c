@@ -29,40 +29,33 @@ uint32_t scale_down(uint32_t base, uint32_t size)
 
 void init_paging()
 {
-	uint32_t *page_dir = palloc_get_page(); // 페이지 디렉토리를 위한 페이지를 하나 할당
-	uint32_t *page_tbl = palloc_get_page(); // 페이지 테이블을 위한 페이지를 하나 할당
-	// printk("1. VADR = 0x%x | 0x%x\n", page_dir, page_tbl); => 0xc0000000 | 0xc0001000
-	page_dir = VH_TO_RH(page_dir); // 리턴받은 값은 virtual이므로 real address으로 변환한다.
-	page_tbl = VH_TO_RH(page_tbl); // 리턴받은 값은 virtual이므로 real address으로 변환한다.
-	// printk("o3o allocated realAddress / page_dir : 0x%x / page_tbl : 0x%x\n", page_dir, page_tbl);
+	uint32_t *page_dir = palloc_get_page();
+	uint32_t *page_tbl = palloc_get_page();
+	page_dir = VH_TO_RH(page_dir);
+	page_tbl = VH_TO_RH(page_tbl);
 	PID0_PAGE_DIR = page_dir;
 
 	int NUM_PT, NUM_PE;
 	uint32_t cr0_paging_set;
 	int i;
 
-	NUM_PE = mem_size() / PAGE_SIZE; // 128 Mbytes / 4096 (전체 메모리를 페이지로 쪼갤 때 나오는 페이지 갯수)
-	NUM_PT = NUM_PE / 1024; // 한 단위가 4 Mbytes면 나오는 갯수.
+	NUM_PE = mem_size() / PAGE_SIZE;
+	NUM_PT = NUM_PE / 1024;
 
 	printk("-PE=%d, PT=%d\n", NUM_PE, NUM_PT);
 	printk("-page dir=%x page tbl=%x\n", page_dir, page_tbl);
 
 	//페이지 디렉토리 구성
-	// 4k할당받은 페이지 중 4b영역이다.
 	page_dir[0] = (uint32_t)page_tbl | PAGE_FLAG_RW | PAGE_FLAG_PRESENT;
-	// printk(">.< page_dir[0] : 0x%x\n", page_dir[0]);
 	
-	NUM_PE = RKERNEL_HEAP_START / PAGE_SIZE; // 커널 소스 + 엔트리 부분을 제외한 부분(실메모리 페이지 할당해주는 녀석들)을 페이지로 쪼갤 때 나오는 페이지 갯수
-	// printk("^-^ NUM_PE (from 0x200 000 ~ 128 Mbytes) : %d\n", NUM_PE);
+	NUM_PE = RKERNEL_HEAP_START / PAGE_SIZE;
 	//페이지 테이블 구성
 	for ( i = 0; i < NUM_PE; i++ ) {
 		page_tbl[i] = (PAGE_SIZE * i)
 			| PAGE_FLAG_RW
-			| PAGE_FLAG_PRESENT; // 페이지 사이즈 * index + 플래그들
+			| PAGE_FLAG_PRESENT;
 		//writable & present
-		// printk(" >> page_tbl[%d] : 0x%x\n", i, page_tbl[i]);
 	}
-	// printk(">.< testing : 0x% x\n", &page_tbl[1024]); // => 영역 침범 잘 되는거 확인함.
 
 
 	//CR0레지스터 설정

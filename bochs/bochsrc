@@ -9,4 +9,3 @@ boot: disk
 log: bochsout.txt
 mouse: enabled=0
 clock: sync=realtime, time0=utc
-com1:enabled=1, mode=file, dev=test.out

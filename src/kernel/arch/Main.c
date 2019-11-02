@@ -44,7 +44,7 @@ void main_init(void)
 
     detect_mem();
     printk("%s", "Memory Detecting\n");
-    printk("-Memory size = %u Kbytes\n", mem_size()/1024); // 131072 Kbytes = 128 Mbytes
+    printk("-Memory size = %u Kbytes\n", mem_size()/1024);
 
 	init_pit();	
 	printk("%s", "PIT Intialization\n");
@@ -75,7 +75,7 @@ void main_init(void)
 #ifdef SCREEN_SCROLL
 	refreshScreen();
 #endif
-	while(1); // OS_P5 구현 후 삭제 필요
+	// while(1); // OS_P5 구현 후 삭제 필요
 
 	sema_self_test();
 	printk("========== initialization complete ==========\n\n");
@@ -84,7 +84,7 @@ void main_init(void)
 #ifdef SCREEN_SCROLL
 	refreshScreen();
 #endif
-	while(1); // OS_P5 구현 후 삭제 필요
+	// while(1); // OS_P5 구현 후 삭제 필요
 }
 
 void print_contributors(void)
